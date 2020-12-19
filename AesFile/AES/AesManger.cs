@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace TestAes
+namespace AesFile
 {
     class AesManger
     {
@@ -36,16 +36,16 @@ namespace TestAes
 
         private KeySize ekeySize;
         private BlockSize eblockSize;
-        private Direction eDirEnDe;
+       // private Direction eDirEnDe;
 
         public AesManger()
         {
             ekeySize = KeySize.Bits256;
             eblockSize = BlockSize.Bits256;
-            eDirEnDe = Direction.Encrypt;
+           // eDirEnDe = Direction.Encrypt;
         }
 
-        public Boolean Encrypt(string cOpenFile, string cSaveFile, string cPassword)
+        public Boolean Encrypt(string cOpenFile, string cSaveFile, string cPassword, ref double totalTimeEncrypt)
         {
             //check param
             if (("" == cOpenFile) ||
@@ -84,6 +84,9 @@ namespace TestAes
                 //set position of the file
                 long lPostion = fileStream.Position;
 
+                DateTime timeStartEncrypt = DateTime.Now;
+                DateTime timeEndEncrypt;
+
                 //Read byte and Encrypt
                 while (lPostion < lFileLength)
                 {
@@ -108,23 +111,21 @@ namespace TestAes
                     saveStream.Write(cipherText, 0, MAX_BLOCK_LENGTH);
                 }
 
+                timeEndEncrypt = DateTime.Now;
+                totalTimeEncrypt = (timeEndEncrypt-timeStartEncrypt).TotalMilliseconds;
+
                 saveStream.Close();
                 fileStream.Close();
                 return true;
             }
         }
 
-        public Boolean Decrypt(string cOpenFile, string cSaveFile, string cPassword)
+        public Boolean Decrypt(string cOpenFile, string cSaveFile, string cPassword, ref double totalTimeDecrypt)
         {
             //check param
             if (("" == cOpenFile) ||
                 ("" == cSaveFile) ||
                 ("" == cPassword))
-            {
-                return false;
-            }
-
-            if (0 > cOpenFile.LastIndexOf(".aes"))
             {
                 return false;
             }
@@ -186,7 +187,7 @@ namespace TestAes
 
             DateTime timeEndEncrypt = DateTime.Now;
 
-            double totalMiliSecondEndEncrypt = (timeEndEncrypt - timeStartEncrypt).TotalMilliseconds;
+            totalTimeDecrypt = (timeEndEncrypt - timeStartEncrypt).TotalMilliseconds;
 
 
             saveStream.Close();
